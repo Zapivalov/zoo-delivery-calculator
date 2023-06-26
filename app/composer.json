@@ -1,0 +1,143 @@
+{
+    "name": "zoo/delivery-calculator",
+    "description": "Zoo delivery calculator",
+    "type": "project",
+    "license": "proprietary",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.1",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "jrm/request-bundle": "^0.2.0",
+        "symfony/console": "6.3.*",
+        "symfony/dotenv": "6.3.*",
+        "symfony/flex": "^2",
+        "symfony/framework-bundle": "6.3.*",
+        "symfony/runtime": "6.3.*",
+        "symfony/twig-bundle": "6.3.*",
+        "symfony/validator": "6.3.*",
+        "symfony/yaml": "6.3.*",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0",
+        "webmozart/assert": "^1.11"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "phpstan/extension-installer": "^1.3",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "phpstan/phpstan-doctrine": "^1.3",
+        "phpstan/phpstan-phpunit": "^1.3",
+        "phpstan/phpstan-strict-rules": "^1.5",
+        "phpstan/phpstan-symfony": "^1.3",
+        "phpstan/phpstan-webmozart-assert": "^1.2",
+        "phpunit/phpunit": "^10.2",
+        "rector/rector": "^0.17.0",
+        "roave/security-advisories": "dev-latest",
+        "symfony/phpunit-bridge": "6.3.*"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.7"
+        },
+        "preferred-install": {
+            "*": "dist"
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "symfony/runtime": true,
+            "symfony/flex": true,
+            "php-http/discovery": false
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\App\\": "tests/"
+        }
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php72": "*"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ],
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
+        "ci": [
+            "@static-analysis",
+            "@phpunit"
+        ],
+        "pre-commit": [
+            "@php-cs-fixer:fix",
+            "@rector:fix",
+            "@phpstan",
+            "@phpunit"
+        ],
+        "static-analysis": [
+            "@composer validate",
+            "@lint",
+            "php bin/console debug:container",
+            "php bin/console debug:router",
+            "./bin/console doctrine:schema:validate",
+            "@php-cs-fixer:check",
+            "@phpstan",
+            "@rector:check",
+            "php bin/console debug:container --deprecations"
+        ],
+        "lint": [
+            "@lint:yaml"
+        ],
+        "lint:yaml": [
+            "./bin/console lint:yaml config/packages --parse-tags"
+        ],
+        "php-cs-fixer:fix": [
+            "PHP_CS_FIXER_FUTURE_MODE=1 php-cs-fixer fix --config='./tools/php-cs-fixer/config.php' --diff --ansi --using-cache=no"
+        ],
+        "php-cs-fixer:check": [
+            "PHP_CS_FIXER_FUTURE_MODE=1 php-cs-fixer fix --config='./tools/php-cs-fixer/config.php' --diff --ansi --using-cache=no --dry-run"
+        ],
+        "rector:fix": [
+            "rector  --config='./tools/rector/config.php' --ansi --no-progress-bar --clear-cache"
+        ],
+        "rector:check": [
+            "rector --config='./tools/rector/config.php' --dry-run --ansi --no-progress-bar"
+        ],
+        "phpstan": [
+            "phpstan analyse --configuration='./tools/phpstan/config.neon' --ansi --no-progress --memory-limit=3G"
+        ],
+        "phpunit": [
+            "APP_ENV=test phpunit --configuration='./tools/phpunit/config.xml' --colors --do-not-cache-result tests"
+        ]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "6.3.*",
+            "docker": false
+        },
+        "src-dir": "src",
+        "phpstan": {
+            "includes": [
+                "extension.neon"
+            ]
+        }
+    }
+}

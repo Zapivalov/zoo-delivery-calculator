@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Delivery Calculator</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+    </head>
+    <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        <form @submit="submit">
+            <p>
+                <h3>Введите массу посылки и выберите перевозчика:</h3>
+                <input v-model="weight" type="number" min="1" required="required" step="1" placeholder="Введите массу посылки">
+            </p>
+            <p>
+                <select v-model="selected" required="required">
+                <option v-for="option in options" :value="option.value">
+                    ${option.text}
+                </option>
+            </select>
+            </p>
+
+            <button type="submit">Calculate price</button>
+        </form>
+        <div v-if="result !== null">
+            <h3>${result}</h3>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        const app = createApp({
+            setup() {
+                const selected = ref('packGroup');
+                const weight = ref(1);
+                const result = ref(null);
+
+                const options = ref([
+                    { text: 'PackGroup', value: 'packGroup' },
+                    { text: 'TransCompany', value: 'transCompany' },
+                ]);
+                const submit = async (event) => {
+                    event.preventDefault();
+                    const cost = await fetch('/deliveries/calculate/' + selected.value + '?weight=' + weight.value)
+                        .then(response => response.json())
+                    result.value = 'Стоимость доставки: ' + cost + ' EUR';
+                };
+                return {
+                    selected,
+                    weight,
+                    options,
+                    result,
+                    submit
+                }
+            }
+        });
+
+        app.config.compilerOptions.delimiters = [ '${', '}' ]
+
+        app.mount('#app')
+    </script>
+
+    </body>
+</html>
